@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Primary SEO -->
+<title>Body Technology Solutions — Senior DevOps & Platform Technical Consultant | Charlotte, NC</title>
+<meta name="description" content="Body Technology Solutions is a solo cloud technical consultancy run by Aubre Body, a Senior DevOps & Platform Technical Consultant with 8+ years at Wells Fargo, Allstate, and beyond. Kubernetes, OpenShift, AWS, Terraform, DevSecOps.">
+<meta name="keywords" content="cloud consultant, DevOps consultant, platform engineer, Kubernetes, OpenShift, AWS, Terraform, DevSecOps, Charlotte NC, Body Technology Solutions">
+<meta name="author" content="Aubre Body">
+<link rel="canonical" href="https://bodytechsolutions.com">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bodytechsolutions.com">
+<meta property="og:title" content="Body Technology Solutions — Senior DevOps & Platform Technical Consultant">
+<meta property="og:description" content="Solo cloud technical consultancy. 8+ years enterprise infrastructure at Wells Fargo and Allstate. Kubernetes, OpenShift, AWS, Terraform, DevSecOps.">
+<meta property="og:image" content="https://bodytechsolutions.com/photo.png">
+<meta property="og:locale" content="en_US">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Body Technology Solutions — Senior DevOps & Platform Technical Consultant">
+<meta name="twitter:description" content="Solo cloud technical consultancy. 8+ years enterprise infrastructure. Available for technical consulting engagements.">
+<meta name="twitter:image" content="https://bodytechsolutions.com/photo.png">
+
+<!-- Structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "name": "Aubre Body",
+      "jobTitle": "Senior DevOps & Platform Technical Consultant",
+      "worksFor": { "@type": "Organization", "name": "Body Technology Solutions" },
+      "url": "https://bodytechsolutions.com",
+      "email": "bodyaubre@gmail.com",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Charlotte",
+        "addressRegion": "NC",
+        "addressCountry": "US"
+      },
+      "knowsAbout": ["Kubernetes", "OpenShift", "AWS", "Azure", "Terraform", "Ansible", "DevOps", "Platform Engineering", "Cloud Security", "DevSecOps"],
+      "hasCredential": [
+        { "@type": "EducationalOccupationalCredential", "name": "CKA — Certified Kubernetes Administrator" },
+        { "@type": "EducationalOccupationalCredential", "name": "PCEP — Certified Python Programmer" },
+        { "@type": "EducationalOccupationalCredential", "name": "Linux Essentials 010-150" }
+      ]
+    },
+    {
+      "@type": "ProfessionalService",
+      "name": "Body Technology Solutions",
+      "url": "https://bodytechsolutions.com",
+      "email": "bodyaubre@gmail.com",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Charlotte",
+        "addressRegion": "NC",
+        "addressCountry": "US"
+      },
+      "serviceType": ["DevOps Consulting", "Platform Engineering", "Cloud Infrastructure", "DevSecOps", "Technical Consulting"],
+      "areaServed": "US"
+    }
+  ]
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0A0E1A;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --accent: #00B4D8;
+    --accent-dim: rgba(0,180,216,0.1);
+    --accent-hover: #00D4F8;
+    --text: #CDD9F0;
+    --text-muted: #6B7FA3;
+    --border: #1E2D47;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 16px; line-height: 1.7; min-height: 100vh; }
+
+  /* NAV */
+  nav { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 2.5rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 10; }
+  .nav-logo { font-family: var(--mono); font-size: 14px; color: var(--accent); letter-spacing: 0.05em; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { font-size: 13px; color: var(--text-muted); text-decoration: none; font-family: var(--mono); letter-spacing: 0.05em; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--accent); }
+
+  /* HERO */
+  .hero { max-width: 1100px; margin: 0 auto; padding: 6rem 2.5rem 4rem; display: grid; grid-template-columns: 1fr 300px; gap: 4rem; align-items: center; }
+  .hero-eyebrow { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem; }
+  .hero-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--accent); }
+  .hero-subbrow { font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-bottom: 1.75rem; padding-left: 2rem; }
+  h1 { font-family: var(--sans); font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 600; line-height: 1.15; color: #E8F0FF; margin-bottom: 1.5rem; letter-spacing: -0.02em; }
+  h1 span { color: var(--accent); }
+  .hero-desc { font-size: 17px; color: var(--text-muted); max-width: 520px; margin-bottom: 2.5rem; line-height: 1.75; }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-primary { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--accent); color: var(--bg); padding: 0.75rem 1.75rem; border-radius: 6px; font-weight: 600; font-size: 14px; text-decoration: none; transition: background 0.2s, transform 0.15s; }
+  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+  .btn-secondary { display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid var(--border); color: var(--text); padding: 0.75rem 1.75rem; border-radius: 6px; font-weight: 500; font-size: 14px; text-decoration: none; transition: border-color 0.2s, color 0.2s; }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .avatar-wrap { display: flex; justify-content: center; align-items: center; }
+  .avatar-frame { width: 220px; height: 220px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface); }
+  .avatar-frame img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; display: block; }
+  .avatar-tag { text-align: center; margin-top: 1rem; font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.08em; }
+
+  /* SKILLS BAR */
+  .skills-bar { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 1.25rem 2.5rem; display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; }
+  .skill-item { font-family: var(--mono); font-size: 12px; color: var(--text-muted); letter-spacing: 0.08em; display: flex; align-items: center; gap: 0.5rem; }
+  .skill-item::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  /* SECTIONS */
+  .section { max-width: 1100px; margin: 0 auto; padding: 5rem 2.5rem; }
+  .section-divider { border: none; border-top: 1px solid var(--border); }
+  .section-label { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.08em; margin-bottom: 0.75rem; }
+  h2 { font-size: 1.75rem; font-weight: 600; color: #E8F0FF; margin-bottom: 3rem; letter-spacing: -0.01em; }
+
+  /* ENGAGEMENTS */
+  .engagement-card { background: var(--surface); border: 1px solid var(--accent); border-radius: 10px; padding: 2rem; display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
+  .engagement-card h3 { font-size: 17px; font-weight: 600; color: #E8F0FF; line-height: 1.4; }
+  .engagement-card p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+  .engagement-tag { font-family: var(--mono); font-size: 10px; color: var(--accent); background: var(--accent-dim); padding: 3px 8px; border-radius: 4px; width: fit-content; }
+  .engagement-outcome { font-size: 13px; color: var(--accent); font-family: var(--mono); border-top: 1px solid var(--border); padding-top: 0.75rem; }
+  .engagement-outcome::before { content: '→ '; }
+
+  /* PRINCIPAL EXPERIENCE */
+  .exp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+  .exp-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.75rem; transition: border-color 0.2s; display: flex; flex-direction: column; gap: 1rem; }
+  .exp-card:hover { border-color: var(--accent); }
+  .exp-card h3 { font-size: 15px; font-weight: 600; color: #E8F0FF; line-height: 1.4; }
+  .exp-tag { font-family: var(--mono); font-size: 10px; color: var(--text-muted); background: var(--surface2); border: 1px solid var(--border); padding: 3px 8px; border-radius: 4px; width: fit-content; }
+  .exp-card p { font-size: 14px; color: var(--text-muted); line-height: 1.65; }
+  .exp-outcome { font-size: 13px; color: var(--accent); font-family: var(--mono); border-top: 1px solid var(--border); padding-top: 0.75rem; }
+  .exp-outcome::before { content: '→ '; }
+
+  /* TECH STACK */
+  .tech-stack { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tech-pill { font-family: var(--mono); font-size: 10px; color: var(--text-muted); background: var(--surface2); border: 1px solid var(--border); padding: 3px 8px; border-radius: 4px; }
+
+  /* WORK HISTORY */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0; top: 8px; bottom: 0; width: 1px; background: var(--border); }
+  .timeline-item { position: relative; margin-bottom: 3rem; }
+  .timeline-item:last-child { margin-bottom: 0; }
+  .timeline-dot { position: absolute; left: -2rem; top: 6px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); transform: translateX(-4px); }
+  .timeline-dot.muted { background: var(--text-muted); }
+  .timeline-meta { display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.4rem; }
+  .timeline-role { font-size: 15px; font-weight: 600; color: #E8F0FF; }
+  .timeline-company { font-size: 14px; color: var(--accent); }
+  .timeline-period { font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-left: auto; }
+  .timeline-bullets { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.4rem; }
+  .timeline-bullets li { font-size: 14px; color: var(--text-muted); line-height: 1.6; list-style: none; padding-left: 1rem; position: relative; }
+  .timeline-bullets li::before { content: '›'; position: absolute; left: 0; color: var(--border); }
+  .timeline-stat { color: var(--text); font-weight: 500; }
+
+  /* CERTS */
+  .certs-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .cert-badge { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; }
+  .cert-icon { width: 32px; height: 32px; background: var(--accent-dim); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .cert-icon svg { width: 16px; height: 16px; stroke: var(--accent); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .cert-name { font-size: 13px; font-weight: 600; color: #E8F0FF; }
+  .cert-issuer { font-size: 12px; color: var(--text-muted); }
+
+  /* SERVICES */
+  .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+  .service-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.75rem; transition: border-color 0.2s, transform 0.2s; }
+  .service-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .service-icon { width: 40px; height: 40px; background: var(--accent-dim); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; }
+  .service-icon svg { width: 20px; height: 20px; stroke: var(--accent); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .service-card h3 { font-size: 15px; font-weight: 600; color: #E8F0FF; margin-bottom: 0.6rem; }
+  .service-card p { font-size: 14px; color: var(--text-muted); line-height: 1.65; }
+
+  /* CTA */
+  .cta-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .cta-inner { max-width: 1100px; margin: 0 auto; padding: 5rem 2.5rem; display: grid; grid-template-columns: 1fr auto; gap: 3rem; align-items: center; }
+  .cta-inner h2 { font-size: 2rem; margin-bottom: 0.75rem; }
+  .cta-inner p { color: var(--text-muted); font-size: 15px; }
+
+  /* FOOTER */
+  footer { max-width: 1100px; margin: 0 auto; padding: 2rem 2.5rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 1rem; }
+  .footer-logo { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+  .footer-copy { font-size: 12px; color: var(--text-muted); font-family: var(--mono); }
+  .footer-built { font-size: 11px; color: var(--text-muted); font-family: var(--mono); text-align: right; line-height: 1.6; }
+  .footer-built span { color: var(--accent); }
+
+  @media (max-width: 768px) {
+    .hero { grid-template-columns: 1fr; padding: 3rem 1.5rem 2rem; gap: 2.5rem; }
+    .avatar-wrap { order: -1; }
+    .avatar-frame { width: 160px; height: 160px; }
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { gap: 1.25rem; }
+    .skills-bar { gap: 1.5rem; padding: 1.25rem 1.5rem; }
+    .section { padding: 3rem 1.5rem; }
+    .cta-inner { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 0.75rem; }
+    .footer-built { text-align: left; }
+    .timeline-period { margin-left: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">bodytechsolutions</div>
+  <ul class="nav-links">
+    <li><a href="#engagements">engagements</a></li>
+    <li><a href="#experience">experience</a></li>
+    <li><a href="#services">services</a></li>
+    <li><a href="#contact">contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">Body Technology Solutions</div>
+    <div class="hero-subbrow">Aubre Body &nbsp;·&nbsp; Senior DevOps & Platform Technical Consultant</div>
+    <h1>Cloud & Kubernetes<br>technical consulting.<br><span style="font-size: clamp(1.6rem, 3.2vw, 2.4rem);">Startups to enterprise.</span></h1>
+    <p class="hero-desc">
+      <span style="font-family: var(--mono); color: var(--accent); font-size: 14px;">aubre@bodytechsolutions:~$</span> Backed by 8+ years of DevOps and platform engineering experience, including 5 years as a technical consultant through staffing firms, delivering Kubernetes, platform engineering, and AWS/Azure cloud solutions for organizations ranging from early-stage startups to large regulated enterprises.
+    </p>
+    <div class="hero-actions">
+      <a href="mailto:bodyaubre@gmail.com" class="btn-primary">
+        Get in touch
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="#engagements" class="btn-secondary">See case studies</a>
+    </div>
+  </div>
+  <div class="avatar-wrap">
+    <div>
+      <div class="avatar-frame">
+        <img src="photo.png" alt="Aubre Body — Body Technology Solutions">
+      </div>
+      <div class="avatar-tag">// aubre@bodytechsolutions</div>
+    </div>
+  </div>
+</section>
+
+<div class="skills-bar">
+  <div class="skill-item">Platform Engineering</div>
+  <div class="skill-item">Kubernetes / OpenShift</div>
+  <div class="skill-item">AWS / Azure</div>
+  <div class="skill-item">Terraform / Ansible</div>
+  <div class="skill-item">GitOps & CI/CD</div>
+  <div class="skill-item">Cloud Security</div>
+  <div class="skill-item">DevOps</div>
+</div>
+
+<!-- CLIENT ENGAGEMENTS -->
+<section class="section" id="engagements">
+  <div class="section-label">bodytechsolutions:~$ ls ./engagements</div>
+  <h2>Client Engagements</h2>
+
+  <div class="engagement-card">
+    <div class="engagement-tag">Queen City Scooters</div>
+    <h3>DevSecOps Pipeline & AWS Security Hardening</h3>
+    <p>Queen City Scooters is a small local scooter shop in Charlotte. They brought me in as a technical consultant. Small businesses get targeted because attackers know the security posture is usually weak. A compromised IAM key can rack up tens of thousands in AWS charges overnight from crypto mining alone, and for a shop that size that is a business-ending event. They had no CI/CD, no security scanning, and secrets sitting in plain text.</p>
+    <p>I built the entire DevSecOps pipeline from scratch. The GitHub Actions workflow covers the full delivery lifecycle: static code analysis and dependency scanning on every PR, container image builds with vulnerability scans before anything hits the registry, automated test runs, and gated deploys that stop cold if a scan fails. CloudWatch and SNS alarms watch Lambda functions and ECS containers in real time so the team knows within minutes if something goes wrong. I also wrote secret rotation scripts that cycle AWS credentials and RDS passwords on a schedule so stale exposed credentials never get the chance to become an attack vector.</p>
+    <p>A single compromised IAM key at a shop their size could mean a $30,000 or more AWS bill, customer data exposure, and PCI compliance violations from payment data. The cost of getting this right up front is a fraction of recovering from a breach. Once the pipeline was in place they also had the audit trail and security posture to qualify for a larger AWS build down the road without starting over.</p>
+    <div class="tech-stack">
+      <span class="tech-pill">GitHub Actions</span>
+      <span class="tech-pill">AWS ECS</span>
+      <span class="tech-pill">Lambda</span>
+      <span class="tech-pill">CloudWatch</span>
+      <span class="tech-pill">SNS</span>
+      <span class="tech-pill">Secret Rotation</span>
+      <span class="tech-pill">SAST</span>
+      <span class="tech-pill">Container Scanning</span>
+      <span class="tech-pill">Terraform</span>
+      <span class="tech-pill">IAM</span>
+    </div>
+    <div class="engagement-outcome">Full DevSecOps pipeline from zero. Scans, builds, tests, gated deploys, real-time alarms, and automated secret rotation protecting a live business from credential compromise</div>
+  </div>
+
+  <div class="engagement-card" style="margin-top: 1.5rem;">
+    <div class="engagement-tag">Cortex</div>
+    <h3>AI-Driven Incident Management Platform</h3>
+    <p>Cortex came to Body Technology Solutions to build an MVP incident management platform from the ground up. Engineering teams were losing too much time manually digging through logs during incidents with no consistent process for capturing what happened or why.</p>
+    <p>I built a platform that automatically detects system failures, pulls the relevant logs, and runs them through an AI layer that generates plain-English incident summaries and postmortem data. Everything gets delivered directly to the team through pattern matching so they spend time fixing the problem instead of reconstructing what happened. The goal was to compress the gap between an incident starting and the team understanding it.</p>
+    <div class="tech-stack">
+      <span class="tech-pill">AI / LLM</span>
+      <span class="tech-pill">Incident Management</span>
+      <span class="tech-pill">Log Analysis</span>
+      <span class="tech-pill">Pattern Matching</span>
+      <span class="tech-pill">Postmortem Automation</span>
+    </div>
+    <div class="engagement-outcome">MVP delivered. Faster incident response and less time spent manually digging through logs during outages</div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- PRINCIPAL CONSULTANT EXPERIENCE -->
+<section class="section" id="experience">
+  <div class="section-label">bodytechsolutions:~$ cat ./principal-experience</div>
+  <h2>Senior DevOps & Platform Technical Consultant Experience</h2>
+  <p style="font-size: 15px; color: var(--text-muted); margin-bottom: 2.5rem; max-width: 680px;">Representative work delivered across financial services, insurance, telecommunications, and cybersecurity. Client names are confidential.</p>
+
+  <div class="exp-grid">
+
+    <div class="exp-card">
+      <div class="exp-tag">Financial Services</div>
+      <h3>OpenShift TKGi Migration Framework</h3>
+      <p>50+ dev teams needed off VMware TKGi onto OpenShift without blowing up their release schedules. Built the containerization framework from scratch: custom UBI base images, SCC policies, OCI compliance standards, and L3 incident ownership across Python ML, Data, Web, and .NET workloads the whole way through.</p>
+      <div class="tech-stack">
+        <span class="tech-pill">OpenShift</span><span class="tech-pill">Helm</span><span class="tech-pill">UBI</span><span class="tech-pill">OCI</span><span class="tech-pill">Harness</span>
+      </div>
+      <div class="exp-outcome">Zero platform blockers across 50+ dev teams during migration</div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-tag">Financial Services</div>
+      <h3>MLOps Pipeline Automation</h3>
+      <p>Built a reusable MLOps pipeline in GitHub Actions automating the full model-to-service lifecycle across regulated banking infrastructure: data validation before GPU training, rootless Buildah OCI image builds, and Helm OCI deployments to OpenShift. Vault handled secret injection throughout. Harness handled CD.</p>
+      <div class="tech-stack">
+        <span class="tech-pill">GitHub Actions</span><span class="tech-pill">Buildah</span><span class="tech-pill">OpenShift</span><span class="tech-pill">Vault</span><span class="tech-pill">Helm</span><span class="tech-pill">Harness</span>
+      </div>
+      <div class="exp-outcome">MLOps team shipping model-as-a-service to production with zero deployment security audit failures</div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-tag">Cybersecurity Startup</div>
+      <h3>Greenfield AWS EKS Platform</h3>
+      <p>Brought in to greenfield an AWS EKS cluster as part of a migration from serverless to containerized workloads. Integrated Istio for service mesh, Vault for secret management, Cilium for network security, ArgoCD for deployments, and a full observability stack with Prometheus, Grafana, and ELK. Consolidated Lambda sprawl into scalable microservices.</p>
+      <div class="tech-stack">
+        <span class="tech-pill">AWS EKS</span><span class="tech-pill">Istio</span><span class="tech-pill">Vault</span><span class="tech-pill">Cilium</span><span class="tech-pill">ArgoCD</span><span class="tech-pill">Prometheus</span><span class="tech-pill">Grafana</span>
+      </div>
+      <div class="exp-outcome">Lambda sprawl consolidated, infrastructure costs reduced on long-running security scan workloads</div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-tag">Cybersecurity Startup</div>
+      <h3>Multi-Cloud Terraform Modules & Network Guardrails</h3>
+      <p>Built reusable Terraform modules across AWS and Azure and led the effort to harden network modules with built-in guardrails: input validation, conditional logic, hardcoded port restrictions, and blocked port enforcement. Isolated network modules into a producer-consumer pattern to enforce clear ownership and safe consumption across teams.</p>
+      <div class="tech-stack">
+        <span class="tech-pill">Terraform</span><span class="tech-pill">AWS</span><span class="tech-pill">Azure</span><span class="tech-pill">IaC</span>
+      </div>
+      <div class="exp-outcome">Network security standards enforced at the module level across multi-cloud environments</div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-tag">Cybersecurity Startup</div>
+      <h3>Hybrid AKS Migration</h3>
+      <p>Led migration of a monolithic ASP.NET application to a 4-pool hybrid AKS cluster running Windows and Linux nodes. Worked with the data engineering team to move from a monolithic architecture to microservices, onboarding the .NET 8 app onto Windows LTSC 2022 containers for Windows-native dependencies that could not be changed.</p>
+      <div class="tech-stack">
+        <span class="tech-pill">Azure AKS</span><span class="tech-pill">Windows Containers</span><span class="tech-pill">ASP.NET</span><span class="tech-pill">Kubernetes</span>
+      </div>
+      <div class="exp-outcome">Containerized architecture unlocked horizontal scalability and deployment independence for faster release cycles</div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-tag">Telecommunications</div>
+      <h3>Ansible Automation Library & On-Prem Kubernetes</h3>
+      <p>Wrote 30+ Ansible roles covering Linux admin, CVE patching for OpenSSH and OpenSSL, and config management across 200+ VMs. Also built an on-premises Kubernetes cluster provisioned through Ansible on Red Hat 8 nodes, deploying manifests via Helm and moving data workloads off a single static server onto scalable isolated infrastructure.</p>
+      <div class="tech-stack">
+        <span class="tech-pill">Ansible</span><span class="tech-pill">Kubernetes</span><span class="tech-pill">Helm</span><span class="tech-pill">Red Hat</span><span class="tech-pill">GitLab CI</span><span class="tech-pill">Datadog</span>
+      </div>
+      <div class="exp-outcome">200+ VMs secured, data team moved to scalable code-driven infrastructure</div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-tag">Insurance / Financial Services</div>
+      <h3>AWS Migration & Middleware Modernization</h3>
+      <p>Migrated WebSphere Liberty and Open Liberty onto AWS EC2 using Docker Compose to modernize the middleware stack. Built CloudWatch monitoring across 100+ application servers for proactive incident identification. Also automated Java middleware deployments for the internal developer platform through Ansible playbooks and roles.</p>
+      <div class="tech-stack">
+        <span class="tech-pill">AWS EC2</span><span class="tech-pill">Docker Compose</span><span class="tech-pill">Ansible</span><span class="tech-pill">CloudWatch</span><span class="tech-pill">WebSphere Liberty</span>
+      </div>
+      <div class="exp-outcome">On-premises footprint reduced, 45% fewer unplanned outages, leaner middleware layer across environments</div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- CERTIFICATIONS -->
+<section class="section">
+  <div class="section-label">bodytechsolutions:~$ cat ./certifications</div>
+  <h2>Certifications</h2>
+  <div class="certs-row">
+    <div class="cert-badge">
+      <div class="cert-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div>
+        <div class="cert-name">CKA — Certified Kubernetes Administrator</div>
+        <div class="cert-issuer">The Linux Foundation</div>
+      </div>
+    </div>
+    <div class="cert-badge">
+      <div class="cert-icon"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+      <div>
+        <div class="cert-name">PCEP — Certified Python Programmer</div>
+        <div class="cert-issuer">OpenEDG Python Institute</div>
+      </div>
+    </div>
+    <div class="cert-badge">
+      <div class="cert-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+      <div>
+        <div class="cert-name">Linux Essentials 010-150</div>
+        <div class="cert-issuer">Linux Professional Institute</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- SERVICES -->
+<section class="section" id="services">
+  <div class="section-label">bodytechsolutions:~$ ls ./services</div>
+  <h2>Services</h2>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+      <h3>Developer Portals & Internal Tools</h3>
+      <p>Platforms built around how your engineering teams actually work. Tooling, visibility, and automation that gets out of the way.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <h3>Cloud Infrastructure & Architecture</h3>
+      <p>Resilient infrastructure on AWS or Azure. EKS, AKS, OpenShift, Terraform. Built to scale and not to surprise you at 2am.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg></div>
+      <h3>AI & Automation Engineering</h3>
+      <p>LLM integrations, AI pipelines, intelligent automation. I take things from working prototype to something that holds up in production.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <h3>Cloud Security & DevSecOps</h3>
+      <p>IAM, secrets management, CVE remediation, compliance automation. Security decisions made at the start, not bolted on after.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+      <h3>DevOps & CI/CD Pipelines</h3>
+      <p>Full delivery automation with GitHub Actions, GitLab CI, or Harness. Observability so you know what broke before your users do.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+      <h3>Technical Consulting</h3>
+      <p>Architecture reviews, stack decisions, scaling questions. I have built this at Wells Fargo and Allstate scale. Happy to think it through with you.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section" id="contact">
+  <div class="cta-inner">
+    <div>
+      <div class="section-label">bodytechsolutions:~$ ./contact.sh</div>
+      <h2>Engagement Inquiries</h2>
+      <p>Body Technology Solutions is currently accepting new engagements. If you have a project that needs a senior DevOps & platform technical consultant, reach out directly to discuss scope and availability.</p>
+    </div>
+    <a href="mailto:bodyaubre@gmail.com" class="btn-primary" style="white-space:nowrap; font-size:15px; padding: 1rem 2rem;">
+      bodyaubre@gmail.com
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">bodytechsolutions</div>
+  <div class="footer-copy">© 2026 Body Technology Solutions LLC</div>
+  <div class="footer-built">
+    This site is its own case study.<br>
+    Built on <span>AWS</span> — S3 · CloudFront · Route 53 · ACM · OpenTofu
+  </div>
+</footer>
+
+</body>
+</html>
