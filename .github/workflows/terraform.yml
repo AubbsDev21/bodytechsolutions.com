@@ -1,0 +1,259 @@
+name: Terraform
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'infra/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'infra/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  AWS_DEFAULT_ACCOUNT: ${{ secrets.AWS_DEFAULT_ACCOUNT }}
+  AWS_DEFAULT_REGION:  ${{ secrets.AWS_DEFAULT_REGION }}
+
+jobs:
+
+  authorize:
+    name: Authorize
+    runs-on: ubuntu-latest
+    steps:
+      # only the repo owner can deploy
+      - name: Check actor
+        run: |
+          set -eo pipefail
+          if [[ "${{ github.actor }}" != "${{ github.repository_owner }}" ]]; then
+            echo "::error::${{ github.actor }} is not authorized — deploy blocked."
+            exit 1
+          fi
+
+  detect:
+    name: Detect Changed Module
+    runs-on: ubuntu-latest
+    needs: authorize
+    outputs:
+      working_dir: ${{ steps.set.outputs.working_dir }}
+    steps:
+      # pull the code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # detect which infra module changed
+      - name: Paths filter
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            core:
+              - 'infra/core/**'
+            dns:
+              - 'infra/route53/dns/**'
+
+      # map the matched filter to a working directory
+      - name: Set working directory
+        id: set
+        run: |
+          set -eo pipefail
+          if [[ "${{ steps.filter.outputs.core }}" == "true" ]]; then
+            echo "working_dir=infra/core" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.filter.outputs.dns }}" == "true" ]]; then
+            echo "working_dir=infra/route53/dns" >> $GITHUB_OUTPUT
+          else
+            echo "::error::No known infra module matched the changed files."
+            exit 1
+          fi
+
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    needs: detect
+    defaults:
+      run:
+        working-directory: ${{ needs.detect.outputs.working_dir }}
+    steps:
+      # pull the code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # pin to latest stable OpenTofu
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: latest
+
+      # catch formatting drift before it hits main
+      - name: Format check
+        run: |
+          set -eo pipefail
+          tofu fmt -check -recursive
+
+      # no backend needed just for validation
+      - name: Init
+        run: |
+          set -eo pipefail
+          tofu init -backend=false
+
+      # validate resource configs and variable references
+      - name: Validate
+        run: |
+          set -eo pipefail
+          tofu validate
+
+      # policy-as-code — hard fail on any security violations
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: ${{ needs.detect.outputs.working_dir }}
+          framework: terraform
+          soft_fail: false
+
+      # second opinion on misconfigs and vulnerabilities
+      - name: Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          scan-ref: ${{ needs.detect.outputs.working_dir }}
+          exit-code: 1
+          severity: HIGH,CRITICAL
+
+  plan:
+    name: Plan
+    runs-on: ubuntu-latest
+    needs: [detect, validate]
+    if: github.event_name == 'pull_request'
+    defaults:
+      run:
+        working-directory: ${{ needs.detect.outputs.working_dir }}
+    env:
+      TF_VAR_route53_zone_id:               ${{ secrets.ROUTE53_EMAIL_ZONE_ID }}
+      TF_VAR_domain_name:                   ${{ secrets.DOMAIN_NAME }}
+      TF_VAR_google_dkim_value:             ${{ secrets.GOOGLE_DKIM_VALUE }}
+      TF_VAR_cloudfront_domain_name:        ${{ secrets.CLOUDFRONT_DOMAIN_NAME }}
+    steps:
+      # pull the code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # pin to latest stable OpenTofu
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: latest
+
+      # auth to AWS via OIDC role
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_DEFAULT_ACCOUNT }}:role/github-actions-execution-role
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      # confirms the AWS login actually worked before proceeding
+      - name: Verify AWS credentials
+        run: |
+          set -eo pipefail
+          aws sts get-caller-identity
+
+      # init with real backend for plan
+      - name: Init
+        run: |
+          set -eo pipefail
+          tofu init
+
+      # generate the plan binary with a timestamp in the filename
+      - name: Plan
+        run: |
+          set -eo pipefail
+          PLAN_FILE="tfplan-$(date +%Y%m%d%H%M%S).bin"
+          echo "PLAN_FILE=$PLAN_FILE" >> $GITHUB_ENV
+          tofu plan -out=$PLAN_FILE
+
+      # convert to JSON so scanners can read it
+      - name: Export plan JSON
+        run: |
+          set -eo pipefail
+          tofu show -json $PLAN_FILE > plan.json
+
+      # scan what will actually be deployed, not just the source
+      - name: Checkov plan scan
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          file: ${{ needs.detect.outputs.working_dir }}/plan.json
+          framework: terraform_plan
+          soft_fail: false
+
+      # store the plan so apply uses exactly what was reviewed
+      - name: Upload plan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ github.sha }}
+          path: ${{ needs.detect.outputs.working_dir }}/tfplan-*.bin
+          retention-days: 1
+
+  apply:
+    name: Apply
+    runs-on: ubuntu-latest
+    needs: [detect, validate]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: ${{ inputs.environment }}
+    defaults:
+      run:
+        working-directory: ${{ needs.detect.outputs.working_dir }}
+    env:
+      TF_VAR_route53_zone_id:               ${{ secrets.ROUTE53_ZONE_ID }}
+      TF_VAR_domain_name:                   ${{ secrets.DOMAIN_NAME }}
+      TF_VAR_google_dkim_value:             ${{ secrets.GOOGLE_DKIM_VALUE }}
+      TF_VAR_google_workspace_verification: ${{ secrets.GOOGLE_WORKSPACE_VERIFICATION }}
+      TF_VAR_cloudfront_domain_name:        ${{ secrets.CLOUDFRONT_DOMAIN_NAME }}
+    steps:
+      # pull the code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # pin to latest stable OpenTofu
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: latest
+
+      # auth to AWS via OIDC role
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_DEFAULT_ACCOUNT }}:role/github-actions-execution-role
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      # confirms the AWS login actually worked before proceeding
+      - name: Verify AWS credentials
+        run: |
+          set -eo pipefail
+          aws sts get-caller-identity
+
+      # init with real backend
+      - name: Init
+        run: |
+          set -eo pipefail
+          tofu init
+
+      # download the exact plan that was reviewed on the PR
+      - name: Download plan artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan-${{ github.sha }}
+          path: ${{ needs.detect.outputs.working_dir }}
+
+      # apply on merge to main — environment gate handles approval
+      - name: Apply
+        run: |
+          set -eo pipefail
+          tofu apply -auto-approve $(ls tfplan-*.bin)
