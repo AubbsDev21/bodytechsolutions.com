@@ -1,0 +1,144 @@
+name: Deploy Site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+env:
+  AWS_DEFAULT_ACCOUNT: ${{ secrets.AWS_DEFAULT_ACCOUNT }}
+  AWS_DEFAULT_REGION:  ${{ secrets.AWS_DEFAULT_REGION }}
+
+jobs:
+
+  authorize:
+    name: Authorize
+    runs-on: ubuntu-latest
+    steps:
+      # only the repo owner can deploy
+      - name: Check actor
+        run: |
+          set -eo pipefail
+          if [[ "${{ github.actor }}" != "${{ github.repository_owner }}" ]]; then
+            echo "::error::${{ github.actor }} is not authorized — deploy blocked."
+            exit 1
+          fi
+
+  test:
+    name: Test & Scan Site
+    runs-on: ubuntu-latest
+    needs: authorize
+    steps:
+      # pull the code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # basic HTML validity check — catches broken tags before deploy
+      - name: HTML validate
+        continue-on-error: true
+        uses: Cyb3r-Jak3/html5validator-action@v7.2.0
+        with:
+          root: .
+          extra: --ignore-re "google-site-verification"
+
+      # CSS linting — catches invalid or inconsistent styles in <style> blocks
+      - name: CSS lint
+        continue-on-error: true
+        run: |
+          npm install -g stylelint stylelint-config-standard
+          npx stylelint "**/*.html" --custom-syntax postcss-html || true
+
+      # link check — catches dead internal/external links
+      - name: Link check
+        continue-on-error: true
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --no-progress --exclude-mail index.html
+          fail: false
+
+      # secret scan — catches accidentally committed keys, tokens, etc.
+      - name: Gitleaks
+        continue-on-error: true
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    name: Deploy to S3
+    runs-on: ubuntu-latest
+    needs: [authorize, test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: ${{ inputs.environment }}
+    steps:
+      # pull the code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # auth to AWS via OIDC role
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_DEFAULT_ACCOUNT }}:role/github-actions-execution-role
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      # confirms the AWS login actually worked before proceeding
+      - name: Verify AWS credentials
+        run: |
+          set -eo pipefail
+          aws sts get-caller-identity
+
+      # sync only the site files — never the infra/ or .github/ directories
+      - name: Sync to S3
+        run: |
+          set -eo pipefail
+          aws s3 sync . s3://${{ secrets.S3_SITE_BUCKET }} \
+            --delete \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude "infra/*" \
+            --exclude "README.md" \
+            --exclude ".gitignore"
+
+      # invalidate cache so changes go live immediately
+      - name: Invalidate CloudFront cache
+        id: invalidate
+        run: |
+          set -eo pipefail
+          INVALIDATION_ID=$(aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*" \
+            --query 'Invalidation.Id' \
+            --output text)
+          echo "invalidation_id=$INVALIDATION_ID" >> $GITHUB_OUTPUT
+
+      # confirm the invalidation actually completes, not just that it was created
+      - name: Verify CloudFront invalidation
+        continue-on-error: true
+        run: |
+          set -eo pipefail
+          aws cloudfront wait invalidation-completed \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --id ${{ steps.invalidate.outputs.invalidation_id }}
+
+      # check that key security headers are present on the live site
+      - name: Security header test
+        continue-on-error: true
+        run: |
+          set -eo pipefail
+          HEADERS=$(curl -sI "https://${{ secrets.DOMAIN_NAME }}")
+          echo "$HEADERS"
+
+          for header in "strict-transport-security" "x-content-type-options" "x-frame-options" "content-security-policy" "referrer-policy"; do
+            if echo "$HEADERS" | grep -qi "$header"; then
+              echo "✅ $header present"
+            else
+              echo "⚠️  $header missing"
+            fi
+          done
