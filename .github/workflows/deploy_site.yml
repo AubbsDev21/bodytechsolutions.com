@@ -92,7 +92,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ env.AWS_DEFAULT_ACCOUNT }}:role/github-actions-execution-role
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_DEFAULT_ACCOUNT }}:role/github-actions-role
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
 
       # confirms the AWS login actually worked before proceeding
