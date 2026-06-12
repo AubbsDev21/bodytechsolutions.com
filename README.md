@@ -1,6 +1,6 @@
-# bodytechsolutions.com
+# ![favicon](assets/favicon.svg) bodytechsolutions.com
 
-Public website for [Body Technology Solutions](https://bodytechsolutions.com) — a cloud and Kubernetes technical consultancy based in Charlotte, NC.
+Public website for [Body Technology Solutions](https://bodytechsolutions.com) a Cloud and Kubernetes technical consultancy based in Charlotte, NC.
 
 Built and self-hosted on AWS as a working example of the infrastructure we deliver for clients.
 
@@ -9,6 +9,7 @@ Built and self-hosted on AWS as a working example of the infrastructure we deliv
 - HTML / CSS — static site, no framework
 - AWS S3 — file storage
 - AWS CloudFront — CDN and HTTPS
+- AWS WAF — web application firewall
 - AWS Route 53 — DNS
 - AWS ACM — SSL certificate
 - OpenTofu — infrastructure as code
