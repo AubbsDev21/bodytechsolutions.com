@@ -1,16 +1,24 @@
 name: Deploy Site
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
-      environment:
-        type: string
+      target:
+        description: "Deployment target"
+        type: choice
         required: true
+        options:
+          - aws
+      environment:
+        description: "Target environment"
+        type: choice
+        required: true
+        options:
+          - production
 
 permissions:
   contents: read
+  id-token: write
 
 env:
   AWS_DEFAULT_ACCOUNT: ${{ secrets.AWS_DEFAULT_ACCOUNT }}
@@ -22,7 +30,7 @@ jobs:
     name: Authorize
     runs-on: ubuntu-latest
     steps:
-      # only the repo owner can deploy
+      # only the repo owner can trigger a deploy
       - name: Check actor
         run: |
           set -eo pipefail
@@ -74,7 +82,6 @@ jobs:
     name: Deploy to S3
     runs-on: ubuntu-latest
     needs: [authorize, test]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment: ${{ inputs.environment }}
     steps:
       # pull the code
