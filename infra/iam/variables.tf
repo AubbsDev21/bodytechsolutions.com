@@ -10,7 +10,13 @@ variable "github_repo" {
 }
 
 variable "aws_account_id" {
-  description = "AWS account ID this role lives in"
+  description = "AWS account ID, used to scope CloudFront/ACM/WAF/STS/DynamoDB ARNs"
+  type        = string
+  sensitive   = true
+}
+
+variable "route53_zone_id" {
+  description = "Route 53 hosted zone ID, used to scope DNS change permissions"
   type        = string
   sensitive   = true
 }

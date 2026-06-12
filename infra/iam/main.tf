@@ -7,7 +7,7 @@ resource "aws_iam_openid_connect_provider" "github" {
   thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
 }
 
-# ── Trust policy — only this repo, only main branch, can assume the role ──
+# ── Trust policy — only this repo, main branch or PRs, can assume the role ──
 data "aws_iam_policy_document" "github_trust" {
   statement {
     effect  = "Allow"
@@ -40,16 +40,18 @@ resource "aws_iam_role" "github_actions" {
   assume_role_policy = data.aws_iam_policy_document.github_trust.json
 }
 
-# ── Permissions policy ────────────────────────────────────────────────
+# ── Permissions policy — scoped ARNs, no bare wildcards ──────────────
 data "aws_iam_policy_document" "github_actions_permissions" {
-  # Terraform state — dns, cdn, iam state buckets
+
   statement {
     sid    = "TerraformStateAccess"
     effect = "Allow"
     actions = [
-      "s3:GetObject",
-      "s3:PutObject",
-      "s3:ListBucket",
+      "s3:GetObject", "s3:PutObject", "s3:ListBucket",
+      "s3:GetBucketVersioning", "s3:GetEncryptionConfiguration",
+      "s3:CreateBucket", "s3:PutBucketVersioning",
+      "s3:PutEncryptionConfiguration", "s3:PutBucketPublicAccessBlock",
+      "s3:GetBucketPublicAccessBlock",
     ]
     resources = [
       "arn:aws:s3:::bodytechsolutions-tfstate-*",
@@ -57,43 +59,27 @@ data "aws_iam_policy_document" "github_actions_permissions" {
     ]
   }
 
-  # State locking
   statement {
     sid    = "TerraformStateLocking"
     effect = "Allow"
     actions = [
-      "dynamodb:GetItem",
-      "dynamodb:PutItem",
-      "dynamodb:DeleteItem",
+      "dynamodb:CreateTable", "dynamodb:DeleteTable", "dynamodb:DescribeTable",
+      "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:DeleteItem", "dynamodb:TagResource",
     ]
     resources = [
       "arn:aws:dynamodb:*:${var.aws_account_id}:table/bodytechsolutions-tfstate-*-lock",
     ]
   }
 
-  # Route 53 — manage DNS records
-  statement {
-    sid    = "Route53Access"
-    effect = "Allow"
-    actions = [
-      "route53:GetHostedZone",
-      "route53:ListHostedZones",
-      "route53:ListResourceRecordSets",
-      "route53:ChangeResourceRecordSets",
-      "route53:GetChange",
-    ]
-    resources = ["*"]
-  }
-
-  # S3 site bucket — content sync
   statement {
     sid    = "SiteBucketAccess"
     effect = "Allow"
     actions = [
-      "s3:GetObject",
-      "s3:PutObject",
-      "s3:DeleteObject",
-      "s3:ListBucket",
+      "s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket",
+      "s3:CreateBucket", "s3:PutBucketPolicy", "s3:GetBucketPolicy",
+      "s3:PutBucketVersioning", "s3:GetBucketVersioning",
+      "s3:PutEncryptionConfiguration", "s3:GetEncryptionConfiguration",
+      "s3:PutBucketPublicAccessBlock", "s3:GetBucketPublicAccessBlock",
     ]
     resources = [
       "arn:aws:s3:::bodytechsolutions-site",
@@ -101,29 +87,55 @@ data "aws_iam_policy_document" "github_actions_permissions" {
     ]
   }
 
-  # S3 bucket management — for cdn layer to create/configure the bucket
+  # CloudFront access logs bucket
   statement {
-    sid    = "SiteBucketManagement"
+    sid    = "LogsBucketAccess"
     effect = "Allow"
     actions = [
-      "s3:CreateBucket",
-      "s3:PutBucketPolicy",
-      "s3:PutBucketVersioning",
-      "s3:PutEncryptionConfiguration",
-      "s3:PutBucketPublicAccessBlock",
-      "s3:GetBucketPolicy",
-      "s3:GetBucketVersioning",
-      "s3:GetEncryptionConfiguration",
-      "s3:GetBucketPublicAccessBlock",
+      "s3:GetObject", "s3:PutObject", "s3:ListBucket",
+      "s3:CreateBucket", "s3:PutBucketPolicy", "s3:GetBucketPolicy",
+      "s3:PutBucketVersioning", "s3:GetBucketVersioning",
+      "s3:PutEncryptionConfiguration", "s3:GetEncryptionConfiguration",
+      "s3:PutBucketPublicAccessBlock", "s3:GetBucketPublicAccessBlock",
+      "s3:PutLifecycleConfiguration", "s3:GetLifecycleConfiguration",
+      "s3:PutBucketAcl", "s3:GetBucketAcl",
+      "s3:PutBucketOwnershipControls", "s3:GetBucketOwnershipControls",
     ]
     resources = [
-      "arn:aws:s3:::bodytechsolutions-site",
+      "arn:aws:s3:::bodytechsolutions-cf-logs",
+      "arn:aws:s3:::bodytechsolutions-cf-logs/*",
     ]
   }
 
-  # CloudFront — manage distribution and invalidations
   statement {
-    sid    = "CloudFrontAccess"
+    sid    = "Route53Zone"
+    effect = "Allow"
+    actions = [
+      "route53:GetHostedZone",
+      "route53:ListResourceRecordSets",
+      "route53:ChangeResourceRecordSets",
+    ]
+    resources = [
+      "arn:aws:route53:::hostedzone/${var.route53_zone_id}",
+    ]
+  }
+
+  statement {
+    sid    = "Route53AccountList"
+    effect = "Allow"
+    actions = [
+      "route53:ListHostedZones",
+      "route53:GetChange",
+    ]
+    resources = [
+      "arn:aws:route53:::change/*",
+      "arn:aws:route53:::hostedzone/*",
+    ]
+  }
+
+  # CloudFront distribution-level actions, scoped to this account
+  statement {
+    sid    = "CloudFrontDistribution"
     effect = "Allow"
     actions = [
       "cloudfront:CreateDistribution",
@@ -133,17 +145,45 @@ data "aws_iam_policy_document" "github_actions_permissions" {
       "cloudfront:TagResource",
       "cloudfront:CreateInvalidation",
       "cloudfront:GetInvalidation",
+      "cloudfront:ListInvalidations",
+    ]
+    resources = [
+      "arn:aws:cloudfront::${var.aws_account_id}:distribution/*",
+    ]
+  }
+
+  statement {
+    sid    = "CloudFrontOAC"
+    effect = "Allow"
+    actions = [
       "cloudfront:CreateOriginAccessControl",
       "cloudfront:GetOriginAccessControl",
       "cloudfront:UpdateOriginAccessControl",
       "cloudfront:DeleteOriginAccessControl",
     ]
-    resources = ["*"]
+    resources = [
+      "arn:aws:cloudfront::${var.aws_account_id}:origin-access-control/*",
+    ]
   }
 
-  # ACM — certificate management, us-east-1 for CloudFront
+  # Response headers policy — security headers
   statement {
-    sid    = "ACMAccess"
+    sid    = "CloudFrontResponseHeaders"
+    effect = "Allow"
+    actions = [
+      "cloudfront:CreateResponseHeadersPolicy",
+      "cloudfront:GetResponseHeadersPolicy",
+      "cloudfront:UpdateResponseHeadersPolicy",
+      "cloudfront:DeleteResponseHeadersPolicy",
+    ]
+    resources = [
+      "arn:aws:cloudfront::${var.aws_account_id}:response-headers-policy/*",
+    ]
+  }
+
+  # ACM — us-east-1 only, certificate ID unknown until RequestCertificate
+  statement {
+    sid    = "ACMCertificate"
     effect = "Allow"
     actions = [
       "acm:RequestCertificate",
@@ -152,12 +192,14 @@ data "aws_iam_policy_document" "github_actions_permissions" {
       "acm:AddTagsToCertificate",
       "acm:ListTagsForCertificate",
     ]
-    resources = ["*"]
+    resources = [
+      "arn:aws:acm:us-east-1:${var.aws_account_id}:certificate/*",
+    ]
   }
 
-  # WAF — web ACL management, CLOUDFRONT scope is global/us-east-1
+  # WAFv2 — CLOUDFRONT scope ACLs live in us-east-1
   statement {
-    sid    = "WAFAccess"
+    sid    = "WAFWebACL"
     effect = "Allow"
     actions = [
       "wafv2:CreateWebACL",
@@ -165,9 +207,32 @@ data "aws_iam_policy_document" "github_actions_permissions" {
       "wafv2:UpdateWebACL",
       "wafv2:DeleteWebACL",
       "wafv2:TagResource",
+    ]
+    resources = [
+      "arn:aws:wafv2:us-east-1:${var.aws_account_id}:global/webacl/*/*",
+    ]
+  }
+
+  statement {
+    sid    = "WAFList"
+    effect = "Allow"
+    actions = [
       "wafv2:ListWebACLs",
     ]
-    resources = ["*"]
+    resources = [
+      "arn:aws:wafv2:us-east-1:${var.aws_account_id}:global/webacl/*",
+    ]
+  }
+
+  statement {
+    sid    = "STS"
+    effect = "Allow"
+    actions = [
+      "sts:GetCallerIdentity",
+    ]
+    resources = [
+      "arn:aws:sts::${var.aws_account_id}:*",
+    ]
   }
 }
 

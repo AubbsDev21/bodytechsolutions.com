@@ -191,11 +191,19 @@ resource "aws_cloudfront_distribution" "site" {
   aliases             = [var.domain_name, "www.${var.domain_name}"]
   web_acl_id          = aws_wafv2_web_acl.site.arn
 
+  # access logs → infra/cdn/logs.tf bucket
+  logging_config {
+    bucket          = aws_s3_bucket.logs.bucket_domain_name
+    prefix          = "cf-logs/"
+    include_cookies = false
+  }
+
   default_cache_behavior {
-    allowed_methods        = ["GET", "HEAD"]
-    cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "S3Origin"
-    viewer_protocol_policy = "redirect-to-https"
+    allowed_methods             = ["GET", "HEAD"]
+    cached_methods              = ["GET", "HEAD"]
+    target_origin_id            = "S3Origin"
+    viewer_protocol_policy      = "redirect-to-https"
+    response_headers_policy_id  = aws_cloudfront_response_headers_policy.security.id
 
     forwarded_values {
       query_string = false
