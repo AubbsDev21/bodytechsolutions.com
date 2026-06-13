@@ -1,10 +1,9 @@
 # ── OIDC provider for GitHub Actions ─────────────────────────────────
-# Only create this once per AWS account. If it already exists, import
-# it instead of creating a duplicate.
-resource "aws_iam_openid_connect_provider" "github" {
-  url             = "https://token.actions.githubusercontent.com"
-  client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+# Read-only reference — the provider is account-wide infrastructure,
+# not owned by this module. Create it once via the AWS console or CLI
+# before running this module for the first time.
+data "aws_iam_openid_connect_provider" "github" {
+  url = "https://token.actions.githubusercontent.com"
 }
 
 # ── Trust policy — only this repo, main branch or PRs, can assume the role ──
@@ -15,7 +14,7 @@ data "aws_iam_policy_document" "github_trust" {
 
     principals {
       type        = "Federated"
-      identifiers = [aws_iam_openid_connect_provider.github.arn]
+      identifiers = [data.aws_iam_openid_connect_provider.github.arn]
     }
 
     condition {
