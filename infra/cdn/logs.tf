@@ -1,4 +1,8 @@
 # ── CloudFront access logs bucket ────────────────────────────────────
+#checkov:skip=CKV_AWS_18: Logging this bucket to itself is circular; CloudFront access logs are the primary access record
+#checkov:skip=CKV_AWS_144: Cross-region replication is disproportionate for ephemeral log data
+#checkov:skip=CKV_AWS_145: AES256 is sufficient; KMS requires key policy access for the CloudFront log delivery service
+#checkov:skip=CKV2_AWS_62: No event notification consumer for log data
 resource "aws_s3_bucket" "logs" {
   bucket = "bodytechsolutions-cf-logs"
 }
@@ -29,6 +33,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
 
 # BucketOwnerPreferred is required for the log-delivery-write ACL below.
 # BucketOwnerEnforced disables ACLs entirely, which breaks CloudFront log delivery.
+#checkov:skip=CKV2_AWS_65: BucketOwnerPreferred is intentional; BucketOwnerEnforced breaks CloudFront log delivery
 resource "aws_s3_bucket_ownership_controls" "logs" {
   bucket = aws_s3_bucket.logs.id
   rule {
@@ -82,6 +87,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "logs" {
     status = "Enabled"
 
     filter {}
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
 
     transition {
       days          = 30

@@ -1,4 +1,7 @@
 # ── S3 bucket — private, no public access ───────────────────────────
+#checkov:skip=CKV_AWS_144: Cross-region replication is disproportionate for a static site served by CloudFront
+#checkov:skip=CKV_AWS_145: AES256 is sufficient; KMS adds complexity without meaningful benefit for static content
+#checkov:skip=CKV2_AWS_62: No event notification consumer for static site content
 resource "aws_s3_bucket" "site" {
   bucket = "bodytechsolutions-site"
 }
@@ -59,6 +62,31 @@ resource "aws_s3_bucket_policy" "site" {
       }
     ]
   })
+}
+
+resource "aws_s3_bucket_logging" "site" {
+  bucket        = aws_s3_bucket.site.id
+  target_bucket = aws_s3_bucket.logs.id
+  target_prefix = "s3-access-logs/"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "site" {
+  bucket = aws_s3_bucket.site.id
+
+  rule {
+    id     = "expire-noncurrent-versions"
+    status = "Enabled"
+
+    filter {}
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+
+    noncurrent_version_expiration {
+      noncurrent_days = 90
+    }
+  }
 }
 
 # ── ACM certificate — must be us-east-1 for CloudFront ───────────────
@@ -182,6 +210,18 @@ resource "aws_wafv2_web_acl" "site" {
   }
 }
 
+resource "aws_cloudwatch_log_group" "waf" {
+  provider          = aws.us_east_1
+  name              = "aws-waf-logs-bodytechsolutions-site"
+  retention_in_days = 90
+}
+
+resource "aws_wafv2_web_acl_logging_configuration" "site" {
+  provider                = aws.us_east_1
+  log_destination_configs = [aws_cloudwatch_log_group.waf.arn]
+  resource_arn            = aws_wafv2_web_acl.site.arn
+}
+
 # ── CloudFront Origin Access Control ─────────────────────────────────
 resource "aws_cloudfront_origin_access_control" "site" {
   name                              = "bodytechsolutions-site-oac"
@@ -191,6 +231,9 @@ resource "aws_cloudfront_origin_access_control" "site" {
 }
 
 # ── CloudFront distribution ──────────────────────────────────────────
+#checkov:skip=CKV_AWS_310: Origin failover requires a second origin; static site has no secondary to fail over to
+#checkov:skip=CKV_AWS_374: Public marketing site; geo restriction would block legitimate visitors
+#checkov:skip=CKV2_AWS_47: False positive; WAF has AWSManagedRulesKnownBadInputsRuleSet covering Log4j (CKV_AWS_192 passes)
 resource "aws_cloudfront_distribution" "site" {
   origin {
     domain_name              = aws_s3_bucket.site.bucket_regional_domain_name
