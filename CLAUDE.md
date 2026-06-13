@@ -75,7 +75,7 @@ S3 (private bucket)          → stores index.html, css, js, assets
 
 **CloudFront access logs** write to a separate private S3 bucket, transition to cheaper storage after 30 days, and expire after 90 days.
 
-**IAM** provides a single OIDC role that GitHub Actions assumes to deploy. No long lived AWS keys are stored anywhere. The role's permissions are scoped to only the resources this project touches.
+**IAM** uses three roles. `github-actions-role` is a pre-existing bootstrap role used by both CI workflows and is not managed by OpenTofu. The IAM module creates two purpose-specific roles: `bodytechsolutions-infra-deploy-role` for OpenTofu CDN and DNS module deployments, and `bodytechsolutions-site-deploy-role` for S3 file sync and CloudFront cache invalidation. No long-lived AWS keys are stored anywhere. Each role's permissions are scoped to only what its workflow needs.
 
 This setup mirrors what we recommend to small business clients: a private origin, a CDN in front of it, a managed certificate, a web application firewall, and short lived credentials for deployments. It costs close to nothing at low traffic and scales automatically if traffic grows.
 

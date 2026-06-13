@@ -6,7 +6,7 @@ data "aws_iam_openid_connect_provider" "github" {
   url = "https://token.actions.githubusercontent.com"
 }
 
-# ── Trust policy — only this repo, main branch or PRs, can assume the role ──
+# ── Trust policy — only this repo, main branch or PRs, can assume the roles ──
 data "aws_iam_policy_document" "github_trust" {
   statement {
     effect  = "Allow"
@@ -34,13 +34,13 @@ data "aws_iam_policy_document" "github_trust" {
   }
 }
 
-resource "aws_iam_role" "github_actions" {
-  name               = "github-actions-execution-role"
+# ── Infrastructure deploy role — OpenTofu CDN and DNS module deployments ──
+resource "aws_iam_role" "infra_deploy" {
+  name               = "bodytechsolutions-infra-deploy-role"
   assume_role_policy = data.aws_iam_policy_document.github_trust.json
 }
 
-# ── Permissions policy — scoped ARNs, no bare wildcards ──────────────
-data "aws_iam_policy_document" "github_actions_permissions" {
+data "aws_iam_policy_document" "infra_deploy_permissions" {
 
   statement {
     sid    = "TerraformStateAccess"
@@ -58,23 +58,25 @@ data "aws_iam_policy_document" "github_actions_permissions" {
     ]
   }
 
+  # CreateTable and DeleteTable are not needed — state tables are bootstrapped manually
   statement {
     sid    = "TerraformStateLocking"
     effect = "Allow"
     actions = [
-      "dynamodb:CreateTable", "dynamodb:DeleteTable", "dynamodb:DescribeTable",
-      "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:DeleteItem", "dynamodb:TagResource",
+      "dynamodb:DescribeTable",
+      "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:DeleteItem",
     ]
     resources = [
       "arn:aws:dynamodb:*:${var.aws_account_id}:table/bodytechsolutions-tfstate-*-lock",
     ]
   }
 
+  # Bucket configuration only — object operations belong to the site deploy role
   statement {
-    sid    = "SiteBucketAccess"
+    sid    = "SiteBucketConfig"
     effect = "Allow"
     actions = [
-      "s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket",
+      "s3:ListBucket",
       "s3:CreateBucket", "s3:PutBucketPolicy", "s3:GetBucketPolicy",
       "s3:PutBucketVersioning", "s3:GetBucketVersioning",
       "s3:PutEncryptionConfiguration", "s3:GetEncryptionConfiguration",
@@ -132,7 +134,7 @@ data "aws_iam_policy_document" "github_actions_permissions" {
     ]
   }
 
-  # CloudFront distribution-level actions, scoped to this account
+  # Distribution management — invalidation belongs to the site deploy role
   statement {
     sid    = "CloudFrontDistribution"
     effect = "Allow"
@@ -142,9 +144,6 @@ data "aws_iam_policy_document" "github_actions_permissions" {
       "cloudfront:UpdateDistribution",
       "cloudfront:DeleteDistribution",
       "cloudfront:TagResource",
-      "cloudfront:CreateInvalidation",
-      "cloudfront:GetInvalidation",
-      "cloudfront:ListInvalidations",
     ]
     resources = [
       "arn:aws:cloudfront::${var.aws_account_id}:distribution/*",
@@ -235,8 +234,60 @@ data "aws_iam_policy_document" "github_actions_permissions" {
   }
 }
 
-resource "aws_iam_role_policy" "github_actions" {
-  name   = "github-actions-permissions"
-  role   = aws_iam_role.github_actions.id
-  policy = data.aws_iam_policy_document.github_actions_permissions.json
+resource "aws_iam_role_policy" "infra_deploy" {
+  name   = "bodytechsolutions-infra-deploy-policy"
+  role   = aws_iam_role.infra_deploy.id
+  policy = data.aws_iam_policy_document.infra_deploy_permissions.json
+}
+
+# ── Site deploy role — file sync and cache invalidation only ──────────
+resource "aws_iam_role" "site_deploy" {
+  name               = "bodytechsolutions-site-deploy-role"
+  assume_role_policy = data.aws_iam_policy_document.github_trust.json
+}
+
+data "aws_iam_policy_document" "site_deploy_permissions" {
+
+  # Object operations only — bucket configuration belongs to the infra deploy role
+  statement {
+    sid    = "SiteBucketObjects"
+    effect = "Allow"
+    actions = [
+      "s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket",
+    ]
+    resources = [
+      "arn:aws:s3:::bodytechsolutions-site",
+      "arn:aws:s3:::bodytechsolutions-site/*",
+    ]
+  }
+
+  # Invalidation only — distribution management belongs to the infra deploy role
+  statement {
+    sid    = "CloudFrontInvalidation"
+    effect = "Allow"
+    actions = [
+      "cloudfront:CreateInvalidation",
+      "cloudfront:GetInvalidation",
+    ]
+    resources = [
+      "arn:aws:cloudfront::${var.aws_account_id}:distribution/*",
+    ]
+  }
+
+  statement {
+    sid    = "STS"
+    effect = "Allow"
+    actions = [
+      "sts:GetCallerIdentity",
+    ]
+    resources = [
+      "arn:aws:sts::${var.aws_account_id}:*",
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "site_deploy" {
+  name   = "bodytechsolutions-site-deploy-policy"
+  role   = aws_iam_role.site_deploy.id
+  policy = data.aws_iam_policy_document.site_deploy_permissions.json
 }
